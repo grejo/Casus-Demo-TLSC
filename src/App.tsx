@@ -164,37 +164,6 @@ const ECGWaveform: React.FC<{ heartRate: number; isAlarm: boolean }> = ({ heartR
   );
 };
 
-// Pulse Oximetry Waveform Component
-const SpO2Waveform: React.FC<{ spo2: number; isLow: boolean }> = ({ spo2, isLow }) => {
-  const waveformColor = isLow ? '#ff4444' : '#3b82f6';
-
-  return (
-    <div className="w-full h-16 bg-gray-950 rounded-lg overflow-hidden relative">
-      <svg className="w-full h-full" viewBox="0 0 200 40" preserveAspectRatio="none">
-        <defs>
-          <filter id="spO2Glow">
-            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Plethysmograph waveform */}
-        <path
-          d="M0,30 Q10,30 20,25 T40,20 Q50,15 60,20 T80,30 Q90,30 100,25 T120,20 Q130,15 140,20 T160,30 Q170,30 180,25 T200,20"
-          fill="none"
-          stroke={waveformColor}
-          strokeWidth="2"
-          filter="url(#spO2Glow)"
-          className="pleth-wave"
-        />
-      </svg>
-    </div>
-  );
-};
-
 function App() {
   // Game State
   const [gameState, setGameState] = useState<GameState>('START');
