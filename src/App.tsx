@@ -56,10 +56,25 @@ const ECGWaveform: React.FC<{ heartRate: number; isAlarm: boolean }> = ({ heartR
   const [offset, setOffset] = useState(0);
 
   useEffect(() => {
-    // Animate the waveform scrolling
+    // Calculate animation speed based on heart rate
+    // heartRate BPM = beats per minute
+    // We want one complete beat cycle (150 units) to match the heart rate
+
+    // Time for one heartbeat in milliseconds
+    const beatDuration = (60 / heartRate) * 1000; // ms per beat
+
+    // We want to scroll one beat width (150 units) in the time of one heartbeat
+    const beatWidth = 150;
+
+    // Update interval: 30ms is smooth enough
+    const updateInterval = 30;
+
+    // Distance to move per update to complete 150 units in beatDuration ms
+    const pixelsPerUpdate = (beatWidth / beatDuration) * updateInterval;
+
     const interval = setInterval(() => {
-      setOffset((prev) => (prev >= 1200 ? 0 : prev + 4));
-    }, 30);
+      setOffset((prev) => (prev >= 1200 ? 0 : prev + pixelsPerUpdate));
+    }, updateInterval);
 
     return () => clearInterval(interval);
   }, [heartRate]);
