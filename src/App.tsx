@@ -54,29 +54,45 @@ const clamp = (value: number, min: number, max: number): number => {
 // ECG Waveform Component (Based on open-source SVG ECG animation)
 const ECGWaveform: React.FC<{ heartRate: number; isAlarm: boolean }> = ({ heartRate, isAlarm }) => {
   const [offset, setOffset] = useState(0);
+  const startTimeRef = useRef<number>(Date.now());
+  const animationFrameRef = useRef<number>();
 
   useEffect(() => {
-    // Calculate animation speed based on heart rate
-    // heartRate BPM = beats per minute
-    // We want one complete beat cycle (150 units) to match the heart rate
+    // Reset start time when heart rate changes to maintain perfect sync
+    startTimeRef.current = Date.now();
 
-    // Time for one heartbeat in milliseconds
-    const beatDuration = (60 / heartRate) * 1000; // ms per beat
+    const animate = () => {
+      const currentTime = Date.now();
+      const elapsed = currentTime - startTimeRef.current;
 
-    // We want to scroll one beat width (150 units) in the time of one heartbeat
-    const beatWidth = 150;
+      // Calculate how far we should have scrolled based on heart rate and elapsed time
+      // heartRate BPM = beats per minute
+      // beatWidth = 150 units per beat
 
-    // Update interval: 30ms is smooth enough
-    const updateInterval = 30;
+      const beatsPerSecond = heartRate / 60;
+      const beatWidth = 150;
 
-    // Distance to move per update to complete 150 units in beatDuration ms
-    const pixelsPerUpdate = (beatWidth / beatDuration) * updateInterval;
+      // Total distance that should have been covered
+      const totalDistance = (elapsed / 1000) * beatsPerSecond * beatWidth;
 
-    const interval = setInterval(() => {
-      setOffset((prev) => (prev >= 1200 ? 0 : prev + pixelsPerUpdate));
-    }, updateInterval);
+      // Apply modulo to loop seamlessly (viewBox is 1200 wide, we have 8 beats)
+      const newOffset = totalDistance % 1200;
 
-    return () => clearInterval(interval);
+      setOffset(newOffset);
+
+      // Continue animation
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    // Start animation
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    // Cleanup
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, [heartRate]);
 
   const waveformColor = isAlarm ? '#ff4444' : '#10b981';
