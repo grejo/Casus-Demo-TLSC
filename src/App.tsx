@@ -633,14 +633,50 @@ function App() {
                 De arts kijkt gespannen en verwacht directe uitvoering.
               </p>
             </div>
+
+            {/* IV Access Warning */}
+            {!treatment.ivAccess && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4">
+                <p className="text-sm text-yellow-800 font-semibold mb-2">
+                  ⚠️ Geen IV toegang aanwezig
+                </p>
+                <p className="text-xs text-yellow-700">
+                  Voor IV medicatie is eerst een infuus nodig.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-3">
+              {/* IV Access Button (if not yet placed) */}
+              {!treatment.ivAccess && (
+                <button
+                  onClick={() => {
+                    handleIVAccess();
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center"
+                >
+                  <Syringe className="w-5 h-5 mr-2" />
+                  Eerst IV toegang aanleggen
+                </button>
+              )}
+
+              {/* Morphine Button */}
               <button
                 onClick={handleMorphineGive}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center"
+                disabled={!treatment.ivAccess}
+                className={`w-full font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center ${
+                  !treatment.ivAccess
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-red-600 hover:bg-red-700 text-white'
+                }`}
               >
                 <Pill className="w-5 h-5 mr-2" />
-                Morfine 10mg IV toedienen (Arts order uitvoeren)
+                {treatment.ivAccess
+                  ? 'Morfine 10mg IV toedienen (Arts order uitvoeren)'
+                  : 'Morfine toedienen (IV vereist)'}
               </button>
+
+              {/* Speak Up Button */}
               <button
                 onClick={handleSpeakUp}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center"
